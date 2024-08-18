@@ -117,10 +117,11 @@ public class LinkedGrid : MonoBehaviour
         elements.Remove(element);
     }
 
-    public List<GridElement> GetNeighborElements(Vector2 gridPosition)
+    public List<GridElement> GetNeighborElements(GridElement input)
     {
         List<GridElement> neighbors = new List<GridElement>();
 
+        Vector2 gridPosition = input.gridPosition;
         foreach (GridElement element in elements)
         {
             if (element.gridPosition == gridPosition)
@@ -162,6 +163,12 @@ public class LinkedGrid : MonoBehaviour
                 neighbors.Add(element);
                 continue;
             }
+        }
+
+        foreach (var neighbor in neighbors)
+        {
+            if (!neighbor.neighbors.Contains(input))
+                neighbor.neighbors.Add(input);
         }
 
         return neighbors;

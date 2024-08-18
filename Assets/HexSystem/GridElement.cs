@@ -56,7 +56,7 @@ public class GridElement : MonoBehaviour
         if (grid)
         {
             grid.AdToGrid(this);
-            neighbors = grid.GetNeighborElements(gridPosition);
+            neighbors = grid.GetNeighborElements(this);
             scale = grid.Scale;
         }
     }
@@ -78,7 +78,7 @@ public class GridElement : MonoBehaviour
         if (grid)
         {
             grid.AdToGrid(this);
-            neighbors = grid.GetNeighborElements(gridPosition);
+            neighbors = grid.GetNeighborElements(this);
             scale = grid.Scale;
         }
     }
