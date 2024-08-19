@@ -143,7 +143,7 @@ public class GridElement : MonoBehaviour
 
     #region Unity Editor
 
-    void OnDrawGizmos()
+    void OnDrawGizmosSelected()
     {
         Color c = Color.white;
 
