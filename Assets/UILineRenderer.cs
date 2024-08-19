@@ -1,54 +1,106 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteAlways]
+[RequireComponent(typeof(CanvasRenderer))]
 public class UILineRenderer : Graphic
 {
-    public float thickness;
-    public List<Vector2> positions;
-
     /// <summary>
-    /// Called when the script is loaded or a value is changed in the
-    /// inspector (Called in the editor only).
+    /// Update is called every frame, if the MonoBehaviour is enabled.
     /// </summary>
-    protected override void OnValidate()
+    void Update()
     {
-        SetVerticesDirty();
+        transform.rotation = Quaternion.Euler(0, 0, -transform.parent.rotation.eulerAngles.z);
+    }
+    public List<Vector2> points = new List<Vector2>();
+
+    public float thickness = 10f;
+    public bool center = true;
+
+    public void AddPoint(Vector2 point)
+    {
+        if (points.Contains(point))
+            return;
+        points.Add(point);
+        points.Add(Vector2.zero);
     }
 
     protected override void OnPopulateMesh(VertexHelper vh)
     {
         vh.Clear();
-        Debug.Log("Test");
-        foreach (var position in positions)
-        {
-            DrawVertexFromPoint(position, vh);
-        }
 
-        for (int i = 0; i < positions.Count - 1; i++)
+        if (points.Count < 2)
+            return;
+
+        for (int i = 0; i < points.Count - 1; i++)
         {
-            int index = i * 2;
+            // Create a line segment between the next two points
+            CreateLineSegment(points[i], points[i + 1], vh);
+
+            int index = i * 5;
+
+            // Add the line segment to the triangles array
             vh.AddTriangle(index, index + 1, index + 3);
             vh.AddTriangle(index + 3, index + 2, index);
-        }
 
+            // These two triangles create the beveled edges
+            // between line segments using the end point of
+            // the last line segment and the start points of this one
+            if (i != 0)
+            {
+                vh.AddTriangle(index, index - 1, index - 3);
+                vh.AddTriangle(index + 1, index - 1, index - 2);
+            }
+        }
     }
 
-    void DrawVertexFromPoint(Vector2 point, VertexHelper vh)
+    /// <summary>
+    /// Creates a rect from two points that acts as a line segment
+    /// </summary>
+    /// <param name="point1">The starting point of the segment</param>
+    /// <param name="point2">The endint point of the segment</param>
+    /// <param name="vh">The vertex helper that the segment is added to</param>
+    private void CreateLineSegment(Vector3 point1, Vector3 point2, VertexHelper vh)
     {
+        Vector3 offset = center ? (rectTransform.sizeDelta / 2) : Vector2.zero;
+
+        // Create vertex template
         UIVertex vertex = UIVertex.simpleVert;
-        vertex.color = Color.black;
+        vertex.color = color;
 
-        vertex.position = new Vector3(-thickness / 2, 0);
-        vertex.position += transform.position;
-        vertex.position += new Vector3(point.x, point.y);
+        // Create the start of the segment
+        Quaternion point1Rotation = Quaternion.Euler(0, 0, RotatePointTowards(point1, point2) + 90);
+        vertex.position = point1Rotation * new Vector3(-thickness / 2, 0);
+        vertex.position += point1 - offset;
+        vh.AddVert(vertex);
+        vertex.position = point1Rotation * new Vector3(thickness / 2, 0);
+        vertex.position += point1 - offset;
         vh.AddVert(vertex);
 
-        vertex.position = new Vector3(thickness / 2, 0);
-        vertex.position += transform.position;
-        vertex.position += new Vector3(point.x, point.y);
+        // Create the end of the segment
+        Quaternion point2Rotation = Quaternion.Euler(0, 0, RotatePointTowards(point2, point1) - 90);
+        vertex.position = point2Rotation * new Vector3(-thickness / 2, 0);
+        vertex.position += point2 - offset;
         vh.AddVert(vertex);
+        vertex.position = point2Rotation * new Vector3(thickness / 2, 0);
+        vertex.position += point2 - offset;
+        vh.AddVert(vertex);
+
+        // Also add the end point
+        vertex.position = point2 - offset;
+        vh.AddVert(vertex);
+    }
+
+    /// <summary>
+    /// Gets the angle that a vertex needs to rotate to face target vertex
+    /// </summary>
+    /// <param name="vertex">The vertex being rotated</param>
+    /// <param name="target">The vertex to rotate towards</param>
+    /// <returns>The angle required to rotate vertex towards target</returns>
+    private float RotatePointTowards(Vector2 vertex, Vector2 target)
+    {
+        return (float)(Mathf.Atan2(target.y - vertex.y, target.x - vertex.x) * (180 / Mathf.PI));
     }
 }

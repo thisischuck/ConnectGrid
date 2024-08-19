@@ -7,16 +7,16 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
-[ExecuteAlways]
 [RequireComponent(typeof(Button))]
 public class GridElement : MonoBehaviour
 {
+    private UILineRenderer lineRenderer;
     private LinkedGrid grid;
     private Button _button;
-    public Vector2 gridPosition;
+    public Vector2 gridPosition = new Vector2(-1, -1);
     public List<int> connections;
     protected bool _activated;
-    float scale;
+    float scale = 25f;
 
     public float rotation;
 
@@ -49,6 +49,7 @@ public class GridElement : MonoBehaviour
 
     public virtual void Start()
     {
+        lineRenderer = GetComponentInChildren<UILineRenderer>();
         rotation = 0;
         _button = GetComponent<Button>();
         _button.onClick.AddListener(OnClick);
@@ -58,6 +59,17 @@ public class GridElement : MonoBehaviour
             grid.AdToGrid(this);
             neighbors = grid.GetNeighborElements(this);
             scale = grid.Scale;
+        }
+
+        if (lineRenderer)
+        {
+            foreach (var connection in connections)
+            {
+                float x = Mathf.Cos(Mathf.Deg2Rad * connection);
+                float y = Mathf.Sin(Mathf.Deg2Rad * connection);
+
+                lineRenderer.AddPoint(new Vector2(x, y) * grid.Scale);
+            }
         }
     }
 
@@ -85,7 +97,23 @@ public class GridElement : MonoBehaviour
 
     void OnDisable()
     {
-        grid.RemoveFromGrid(this);
+        if (grid)
+            grid.RemoveFromGrid(this);
+    }
+
+    void OnValidate()
+    {
+        lineRenderer = GetComponentInChildren<UILineRenderer>();
+        if (lineRenderer)
+        {
+            foreach (var connection in connections)
+            {
+                float x = Mathf.Cos(Mathf.Deg2Rad * connection);
+                float y = Mathf.Sin(Mathf.Deg2Rad * connection);
+
+                lineRenderer.AddPoint(new Vector2(x, y) * scale);
+            }
+        }
     }
 
     void OnMouseDrag()
@@ -137,13 +165,14 @@ public class GridElement : MonoBehaviour
             if (InThreshold(angle, c + angleThreshold, c - angleThreshold))
             {
                 Activated = emiter.Activated;
+                _button.image.color = Activated ? Color.cyan : Color.white;
             }
         }
     }
 
     #region Unity Editor
 
-    void OnDrawGizmosSelected()
+    void OnDrawGizmos()
     {
         Color c = Color.white;
 
@@ -156,9 +185,9 @@ public class GridElement : MonoBehaviour
         {
             float tempConnection = connection - transform.rotation.eulerAngles.z;
 
-            Vector3 destination = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection), Mathf.Sin(Mathf.Deg2Rad * tempConnection), 0) * scale * 1.5f;
-            Vector3 upLine = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection + LineScale), Mathf.Sin(Mathf.Deg2Rad * tempConnection + LineScale), 0) * scale;
-            Vector3 downLine = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection - LineScale), Mathf.Sin(Mathf.Deg2Rad * tempConnection - LineScale), 0) * scale;
+            Vector3 destination = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection), Mathf.Sin(Mathf.Deg2Rad * tempConnection), 0) * scale / 2 * 1.5f;
+            Vector3 upLine = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection + LineScale), Mathf.Sin(Mathf.Deg2Rad * tempConnection + LineScale), 0) * scale / 2;
+            Vector3 downLine = transform.position + new Vector3(Mathf.Cos(Mathf.Deg2Rad * tempConnection - LineScale), Mathf.Sin(Mathf.Deg2Rad * tempConnection - LineScale), 0) * scale / 2;
 
             Vector3[] vertices = {
                 transform.position,
@@ -169,7 +198,6 @@ public class GridElement : MonoBehaviour
 
             Handles.DrawSolidRectangleWithOutline(vertices, c, Color.black);
         }
-        _button.image.color = c;
     }
 
     #endregion

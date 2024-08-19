@@ -8,11 +8,12 @@ using UnityEngine;
 
 public class LinkedGrid : MonoBehaviour
 {
+    public bool GiveNewPositions = true;
     public RectTransform rect;
     [SerializeField] int Width;
     [SerializeField] int Height;
 
-    [Range(10, 100)]
+    [Range(20, 100)]
     public int Scale = 1;
 
     public List<Vector4> gridPositions;
@@ -42,9 +43,8 @@ public class LinkedGrid : MonoBehaviour
     void OnValidate()
     {
         Vector2 parentSize = rect.rect.size;
-
-        Height = Mathf.CeilToInt((parentSize.y - Scale) / (Scale * 2));
-        Width = Mathf.CeilToInt((parentSize.x - Scale) / (Scale * 2f));
+        Height = Mathf.CeilToInt((parentSize.y / (1.5f * Scale)));
+        Width = Mathf.CeilToInt((parentSize.x / (1.72f * Scale)));
         GenerateGrid();
     }
 
@@ -67,7 +67,7 @@ public class LinkedGrid : MonoBehaviour
         for (int i = 0; i < Width; i++)
             for (int j = 0; j < Height; j++)
             {
-                Vector3 pos = transform.position;
+                Vector3 pos = transform.position + new Vector3(Scale / 2, -Scale / 2, 0);
                 pos += Vector3.down * (1.5f * Scale * j);
                 if (j % 2 == 0)
                     pos += Vector3.right * (1.72f * Scale * i);
@@ -106,9 +106,21 @@ public class LinkedGrid : MonoBehaviour
             elements.Add(element);
         }
 
-        Vector4 position = GetClosestPosition(element.transform.position);
+        Vector4 position = Vector4.one;
+        if (element.gridPosition == new Vector2(-1, -1) || GiveNewPositions)
+        {
+            position = GetClosestPosition(element.transform.position);
+            element.gridPosition = new Vector2((int)(position.w / 1000), position.w - ((int)(position.w / 1000) * 1000));
+        }
+        else
+        {
+            float encoding;
+            if (element.gridPosition.y % 2 != 1)
+                encoding = element.gridPosition.x * 1000 + element.gridPosition.y;
+            else encoding = (element.gridPosition.x + 1) * 1000 + element.gridPosition.y;
 
-        element.gridPosition = new Vector2((int)(position.w / 1000), position.w - ((int)(position.w / 1000) * 1000));
+            position = gridPositions.Find((x) => x.w == encoding);
+        }
         element.transform.position = position;
     }
 
