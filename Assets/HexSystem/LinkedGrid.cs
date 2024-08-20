@@ -191,7 +191,7 @@ public class LinkedGrid : MonoBehaviour
     /// </summary>
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
+        Gizmos.color = Color.white;
         foreach (var pos in gridPositions)
         {
             Gizmos.DrawLineStrip(MakeHexagon(pos), true);

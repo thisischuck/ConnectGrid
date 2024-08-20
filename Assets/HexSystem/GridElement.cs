@@ -30,6 +30,7 @@ public class GridElement : MonoBehaviour
             if (_activated == value)
                 return;
             _activated = value;
+            _button.image.color = Activated ? Color.cyan : Color.white;
             if (_activated && grid)
                 Emit();
         }
@@ -75,7 +76,7 @@ public class GridElement : MonoBehaviour
 
     public virtual void OnClick()
     {
-        _activated = false;
+        Activated = false;
         transform.rotation = Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z + 60);
         rotation += 60;
         if (rotation == 360)
@@ -114,12 +115,6 @@ public class GridElement : MonoBehaviour
                 lineRenderer.AddPoint(new Vector2(x, y) * scale);
             }
         }
-    }
-
-    void OnMouseDrag()
-    {
-        Debug.Log("Drag");
-        this.transform.position = Input.mousePosition;
     }
 
     public virtual void Emit()
@@ -165,7 +160,6 @@ public class GridElement : MonoBehaviour
             if (InThreshold(angle, c + angleThreshold, c - angleThreshold))
             {
                 Activated = emiter.Activated;
-                _button.image.color = Activated ? Color.cyan : Color.white;
             }
         }
     }

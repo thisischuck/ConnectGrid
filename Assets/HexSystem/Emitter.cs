@@ -8,6 +8,19 @@ using UnityEngine.UI;
 
 public class Emitter : GridElement
 {
+    public override bool Activated
+    {
+        get { return _activated; }
+        set
+        {
+            if (value)
+            {
+                _activated = value;
+                Emit();
+            }
+        }
+    }
+
     public override void Start()
     {
         gameObject.name = "Emitter";
