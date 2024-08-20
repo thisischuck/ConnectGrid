@@ -10,7 +10,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class GridElement : MonoBehaviour
 {
-    private UILineRenderer lineRenderer;
+    protected UILineRenderer lineRenderer;
     private LinkedGrid grid;
     private Button _button;
     public Vector2 gridPosition = new Vector2(-1, -1);
@@ -30,7 +30,7 @@ public class GridElement : MonoBehaviour
             if (_activated == value)
                 return;
             _activated = value;
-            _button.image.color = Activated ? Color.cyan : Color.white;
+            lineRenderer.color = Activated ? Color.cyan : Color.white;
             if (_activated && grid)
                 Emit();
         }
@@ -69,7 +69,7 @@ public class GridElement : MonoBehaviour
                 float x = Mathf.Cos(Mathf.Deg2Rad * connection);
                 float y = Mathf.Sin(Mathf.Deg2Rad * connection);
 
-                lineRenderer.AddPoint(new Vector2(x, y) * grid.Scale);
+                lineRenderer.AddPoint(new Vector2(x, y) * 0.83f * grid.Scale);
             }
         }
     }

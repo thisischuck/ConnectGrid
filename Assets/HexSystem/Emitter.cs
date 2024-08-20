@@ -16,6 +16,7 @@ public class Emitter : GridElement
             if (value)
             {
                 _activated = value;
+                lineRenderer.color = Activated ? Color.cyan : Color.white;
                 Emit();
             }
         }

@@ -9,12 +9,13 @@ public class MoveWithMouse : MonoBehaviour
     {
         Vector3 pos;
 #if (!UNITY_EDITOR && UNITY_ANDROID)
-        pos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
+        if(Input.touches.Length > 0)
+                pos = Camera.main.ScreenToWorldPoint(Input.touches[0].position);
 #elif UNITY_EDITOR
-        pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 #endif
 
-        pos.z = 0;
-        transform.position = pos;
-    }
+                pos.z = 0;
+                transform.position = pos;
+        }
 }
