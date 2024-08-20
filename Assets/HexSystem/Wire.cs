@@ -19,7 +19,6 @@ public class Wire : GridElement
 
     public void InvokeEmit()
     {
-        Activated = false;
         Emit();
     }
 

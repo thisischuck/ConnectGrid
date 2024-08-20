@@ -8,6 +8,8 @@ using UnityEngine;
 
 public class LinkedGrid : MonoBehaviour
 {
+    public GameObject Rendering;
+    public UILineRenderer RenderLine;
     public bool GiveNewPositions = true;
     public RectTransform rect;
     [SerializeField] int Width;
@@ -16,16 +18,18 @@ public class LinkedGrid : MonoBehaviour
     [Range(20, 100)]
     public int Scale = 1;
 
+    UILineRenderer renderer;
+
     public List<Vector4> gridPositions;
 
     public List<GridElement> elements;
 
     readonly Vector3[] Hexagon = new Vector3[]{
-        new Vector3(0.86f, 0.5f, 0),
-        new Vector3(0, 1, 0),
-        new Vector3(-0.86f , 0.5f, 0 ),
+        new Vector3(0.86f, 0.5f, 0), // TOP SIDE A
+        new Vector3(0, 1, 0), // TOP
+        new Vector3(-0.86f , 0.5f, 0 ), // TOP SIDE B
         new Vector3(-0.86f, -0.5f, 0),
-        new Vector3(0, -1f, 0),
+        new Vector3(0, -1f, 0), // BOTTOM
         new Vector3(0.86f, -0.5f, 0),
     };
 
@@ -35,6 +39,7 @@ public class LinkedGrid : MonoBehaviour
     /// </summary>
     void Start()
     {
+        renderer = GetComponent<UILineRenderer>();
         Physics2D.queriesHitTriggers = true;
         rect = GetComponent<RectTransform>();
 
@@ -42,21 +47,29 @@ public class LinkedGrid : MonoBehaviour
 
     void OnValidate()
     {
+        if (!renderer)
+            renderer = GetComponent<UILineRenderer>();
         Vector2 parentSize = rect.rect.size;
         Height = Mathf.CeilToInt((parentSize.y / (1.5f * Scale)));
         Width = Mathf.CeilToInt((parentSize.x / (1.72f * Scale)));
         GenerateGrid();
     }
 
-    public Vector3[] MakeHexagon(Vector3 pos)
+    public Vector3[] MakeHexagon(Vector3 pos, int startAt = 0)
     {
-        Vector3[] currentHexagon = new Vector3[6];
-
-        for (int i = 0; i < Hexagon.Length; i++)
+        Vector3[] currentHexagon = new Vector3[7];
+        int count = 0;
+        int i = startAt;
+        do
         {
-            currentHexagon[i] = Hexagon[i] * Scale + pos;
-        }
+            currentHexagon[count] = Hexagon[i] * Scale + pos;
+            i++;
+            if (i >= Hexagon.Length)
+                i = 0;
+            count++;
+        } while (count < Hexagon.Length);
 
+        currentHexagon[6] = currentHexagon[0];
         return currentHexagon;
     }
 
@@ -80,8 +93,32 @@ public class LinkedGrid : MonoBehaviour
                     enconding = i * 1000 + j;
                 else enconding = (i + 1) * 1000 + j;
 
-                gridPositions.Add(new Vector4(pos.x, pos.y, pos.z, enconding));
+                Vector4 vector = new Vector4(pos.x, pos.y, pos.z, enconding);
+
+                gridPositions.Add(vector);
             }
+    }
+
+    [ContextMenu("RenderGrid")]
+    public void RenderGrid()
+    {
+        if (Rendering.transform.childCount > 0)
+        {
+            for (int i = Rendering.transform.childCount - 1; i < 0; i--)
+            {
+                Debug.Log(i);
+                Destroy(Rendering.transform.GetChild(i).gameObject);
+            }
+            Debug.Log(Rendering.transform.childCount);
+        }
+        foreach (var point in gridPositions)
+        {
+            UILineRenderer o = Instantiate(RenderLine, point, Quaternion.identity, Rendering.transform);
+            foreach (var p in MakeHexagon(new Vector3(Scale / 2, -Scale / 2, 0)))
+            {
+                o.AddGridPoint(p);
+            }
+        }
     }
 
     public Vector4 GetClosestPosition(Vector3 input)
@@ -195,7 +232,7 @@ public class LinkedGrid : MonoBehaviour
         foreach (var pos in gridPositions)
         {
             Gizmos.DrawLineStrip(MakeHexagon(pos), true);
-            //Handles.DrawWireDisc(pos, Vector3.forward, Scale);
+            Handles.DrawWireDisc(pos, Vector3.forward, 1);
         }
 
     }

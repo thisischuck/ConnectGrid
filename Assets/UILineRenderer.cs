@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CanvasRenderer))]
-public class UILineRenderer : Graphic
+public class UILineRenderer : MaskableGraphic
 {
     /// <summary>
     /// Update is called every frame, if the MonoBehaviour is enabled.
@@ -25,6 +25,11 @@ public class UILineRenderer : Graphic
             return;
         points.Add(point);
         points.Add(Vector2.zero);
+    }
+
+    public void AddGridPoint(Vector2 point)
+    {
+        points.Add(point);
     }
 
     protected override void OnPopulateMesh(VertexHelper vh)

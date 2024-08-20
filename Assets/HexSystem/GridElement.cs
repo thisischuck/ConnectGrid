@@ -166,6 +166,8 @@ public class GridElement : MonoBehaviour
 
     #region Unity Editor
 
+#if UNITY_EDITOR
+
     void OnDrawGizmos()
     {
         Color c = Color.white;
@@ -193,6 +195,8 @@ public class GridElement : MonoBehaviour
             Handles.DrawSolidRectangleWithOutline(vertices, c, Color.black);
         }
     }
+
+#endif
 
     #endregion
 }
