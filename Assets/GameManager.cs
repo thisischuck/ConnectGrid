@@ -36,6 +36,8 @@ public class GameManager : MonoBehaviour
     public int CurrentLevel;
     public int MaxLevel;
 
+    public GameObject LevelObject;
+
     /// <summary>
     /// Start is called on the frame when a script is enabled just before
     /// any of the Update methods is called the first time.
@@ -48,7 +50,6 @@ public class GameManager : MonoBehaviour
             MaxLevel = ES3.Load<int>("MaxLevel");
         }
     }
-
     // Update is called once per frame
     void Update()
     {
@@ -77,10 +78,16 @@ public class GameManager : MonoBehaviour
     [ContextMenu("LoadLevel")]
     public void LoadLevel(int level)
     {
+        DestroyCurrentLevel();
         var l = Resources.Load("Levels/Level_" + level);
         CurrentLevel = level;
-        Instantiate(l, grid.transform);
+        LevelObject = (GameObject)Instantiate(l, grid.transform);
         LevelLoaded.Invoke(level);
+    }
+
+    public void DestroyCurrentLevel()
+    {
+        Destroy(LevelObject);
     }
 
     void OnDisable()

@@ -67,6 +67,7 @@ public class GridElement : MonoBehaviour
 
         if (lineRenderer)
         {
+            lineRenderer.points.Clear();
             foreach (var connection in connections)
             {
                 float x = Mathf.Cos(Mathf.Deg2Rad * connection);
@@ -93,6 +94,7 @@ public class GridElement : MonoBehaviour
 
     public virtual void OnClick()
     {
+        AudioManager.Instance.PlayPopIt();
         Activated = false;
         transform.rotation = Quaternion.Euler(0, 0, transform.rotation.eulerAngles.z + 60);
         rotation += 60;

@@ -1,14 +1,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class MainMenuManager : MonoBehaviour
 {
+    public static UnityAction ShowMenu;
     // Start is called before the first frame update
     void Start()
     {
         GameManager.LevelLoaded += OnLevelLoaded;
-        GameManager.LevelFinished += OnLevelFinished;
+        ShowMenu += OnLevelFinished;
     }
 
     // Update is called once per frame
@@ -17,8 +19,9 @@ public class MainMenuManager : MonoBehaviour
         this.gameObject.SetActive(false);
     }
 
-    void OnLevelFinished(int i)
+    void OnLevelFinished()
     {
+        GameManager.Instance.DestroyCurrentLevel();
         this.gameObject.SetActive(true);
     }
 }

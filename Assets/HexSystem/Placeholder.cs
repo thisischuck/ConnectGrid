@@ -21,7 +21,9 @@ public class Placeholder : GridElement
     {
         base.Start();
         textLevel = GetComponentInChildren<TextMeshProUGUI>();
-        textLevel.text = Level.ToString();
+        if (Level < 0)
+            textLevel.text = "Main Menu";
+        else textLevel.text = Level.ToString();
     }
 
     protected override void OnEnable()
@@ -46,7 +48,10 @@ public class Placeholder : GridElement
 
     public override void OnClick()
     {
-        GameManager.Instance.LoadLevel(Level);
+        AudioManager.Instance.PlayPopIt();
+        if (Level < 0)
+            MainMenuManager.ShowMenu.Invoke();
+        else GameManager.Instance.LoadLevel(Level);
         return;
     }
 }

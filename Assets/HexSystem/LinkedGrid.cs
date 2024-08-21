@@ -16,7 +16,7 @@ public class LinkedGrid : MonoBehaviour
     [SerializeField] int Height;
 
     [Range(20, 100)]
-    public int Scale = 1;
+    public int Scale = 100;
 
     UILineRenderer renderer;
 
@@ -49,8 +49,6 @@ public class LinkedGrid : MonoBehaviour
         if (!renderer)
             renderer = GetComponent<UILineRenderer>();
         Vector2 parentSize = rect.rect.size;
-        Height = Mathf.CeilToInt((parentSize.y / (1.5f * Scale)));
-        Width = Mathf.CeilToInt((parentSize.x / (1.72f * Scale)));
         GenerateGrid();
     }
 
@@ -113,7 +111,7 @@ public class LinkedGrid : MonoBehaviour
         foreach (var point in gridPositions)
         {
             UILineRenderer o = Instantiate(RenderLine, point, Quaternion.identity, Rendering.transform);
-            foreach (var p in MakeHexagon(new Vector3(Scale / 2, -Scale / 2, 0)))
+            foreach (var p in MakeHexagon(new Vector3(-Scale / 2, -Scale / 2, 0)))
             {
                 o.AddGridPoint(p);
             }
@@ -225,6 +223,7 @@ public class LinkedGrid : MonoBehaviour
     /// <summary>
     /// Callback to draw gizmos only if the object is selected.
     /// </summary>
+#if UNITY_EDITOR
     void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
@@ -235,4 +234,5 @@ public class LinkedGrid : MonoBehaviour
         }
 
     }
+#endif
 }

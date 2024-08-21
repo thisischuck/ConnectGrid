@@ -5,8 +5,9 @@ using UnityEngine;
 public class LevelManager : MonoBehaviour
 {
     public int Level;
+    public GameObject LevelEnd;
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         GameManager.LevelFinished += OnLevelFinished;
     }
@@ -23,6 +24,9 @@ public class LevelManager : MonoBehaviour
     void OnLevelFinished(int l)
     {
         if (Level == l)
-            Destroy(gameObject);
+        {
+            AudioManager.Instance.PlayVictory();
+            LevelEnd.SetActive(true);
+        }
     }
 }
