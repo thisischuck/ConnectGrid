@@ -11,7 +11,7 @@ using UnityEngine.UI;
 public class GridElement : MonoBehaviour
 {
     protected UILineRenderer lineRenderer;
-    private LinkedGrid grid;
+    public LinkedGrid grid;
     private Button _button;
     public Vector2 gridPosition = new Vector2(-1, -1);
     public List<int> connections;
@@ -52,9 +52,12 @@ public class GridElement : MonoBehaviour
     {
         lineRenderer = GetComponentInChildren<UILineRenderer>();
         rotation = 0;
-        _button = GetComponent<Button>();
+        if (!_button)
+            _button = GetComponent<Button>();
         _button.onClick.AddListener(OnClick);
-        grid = transform.parent.GetComponent<LinkedGrid>();
+
+        grid = FindAnyObjectByType<LinkedGrid>();
+
         if (grid)
         {
             grid.AdToGrid(this);
@@ -74,6 +77,20 @@ public class GridElement : MonoBehaviour
         }
     }
 
+    public void DisableInput()
+    {
+        if (!_button)
+            _button = GetComponent<Button>();
+        _button.interactable = false;
+    }
+
+    public void EnableInput()
+    {
+        if (!_button)
+            _button = GetComponent<Button>();
+        _button.interactable = true;
+    }
+
     public virtual void OnClick()
     {
         Activated = false;
@@ -86,7 +103,7 @@ public class GridElement : MonoBehaviour
         Emit();
     }
 
-    void OnEnable()
+    protected virtual void OnEnable()
     {
         if (grid)
         {
@@ -175,6 +192,8 @@ public class GridElement : MonoBehaviour
         if (_activated)
             c = Color.cyan;
 
+        if (connections == null)
+            return;
         if (connections.Count <= 0)
             return;
         foreach (var connection in connections)

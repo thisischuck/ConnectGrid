@@ -42,7 +42,6 @@ public class LinkedGrid : MonoBehaviour
         renderer = GetComponent<UILineRenderer>();
         Physics2D.queriesHitTriggers = true;
         rect = GetComponent<RectTransform>();
-
     }
 
     void OnValidate()
